@@ -1,0 +1,135 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// AFFICHER UN VECTOR //
+
+void afficheVector (const vector<unsigned> & v){
+    for (unsigned i=0; i < v.size() ; ++i){
+        cout << v[i] << " ";
+    }
+    cout << endl;
+}
+
+// AFFICHER UNE MATRICE //
+
+template <typename T>
+void afficheMatrice (const vector<vector<T>> & m){
+    for (unsigned i=0 ; i < m.size() ; ++i){
+        for (unsigned j=0 ; j < m[i].size() ; ++j){
+            cout << m[i][j] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+// EST PREMIER //
+
+bool estPremier(const unsigned & n){
+    for (unsigned i = 2 ; i < n ; ++i){
+        if (n%i == 0){
+            return false;
+        }
+    }
+    return true;
+}
+
+// LISTE NB PREMIERS //
+
+vector<unsigned> generePremierPlusPetitQue (const unsigned & n){
+    vector<unsigned> listeNbP;
+    for (unsigned i=2 ; i < n ; ++i){
+        if (estPremier(i) == true){
+            listeNbP.push_back(i);
+        }
+    }
+    return listeNbP;
+}
+
+// ERATOSTHÃ¨NE //
+
+vector<unsigned> generePremierPlusPetitQueV2 (const unsigned & n){
+    vector<bool> listeBool (n, true);
+    listeBool[1] = false;
+    for (unsigned i=2 ; i < n ; ++i){
+        if (listeBool[i]){
+            for (unsigned j = i*i ; j < n ; j = j + i){
+                listeBool[j] = false;
+            }
+        }
+    }
+    listeBool[0] = false;
+    listeBool[2] = false;
+    vector<unsigned> listeNP;
+    for (unsigned i = 0; i < listeBool.size() ; ++i){
+        if (listeBool[i]){
+            listeNP.push_back(i);
+        }
+    }
+    return listeNP;
+}
+
+// MATRICE ESCARGOT //
+
+void genereMatricEscargot (vector<vector<unsigned>> & mat){
+    size_t i (mat.size()/2), j (mat.size()/2);
+    unsigned numTour(1), nbAInserer(2);
+    mat[i][j++] = 1;
+    for ( ; nbAInserer < mat.size()*mat.size() ; ){
+        //haut
+        for (unsigned k=0 ; k<2*numTour ; ++k){
+            mat[i][j]=nbAInserer++;
+            --i;
+        }
+        ++i;
+        --j;
+        //gauche
+        for (unsigned k=0 ; k<2*numTour ; ++k){
+            mat[i][j]=nbAInserer++;
+            --j;
+        }
+        ++i;
+        ++j;
+        //bas
+        for (unsigned k=0 ; k<2*numTour ; ++k){
+            mat[i][j] = nbAInserer++;
+            ++i;
+        }
+        --i;
+        ++j;
+        //droite
+        for (unsigned k=0 ; k<2*numTour ; ++k){
+            mat[i][j] = nbAInserer++;
+            ++j;
+        }
+        ++numTour;
+    }
+}
+
+// REMPLACER NB PREMIERS PAR X ET AUTRES PAR ESPACE //
+
+vector<vector<char>> genereMatricUlam (vector<vector<unsigned>> & mat){
+    vector<vector<char>> mat_char(mat.size(), vector<char>(mat[0].size(), 1));
+    for (unsigned i=0 ; i < mat.size() ; ++i){
+        for (unsigned j=0 ; j < mat[i].size() ; ++j){
+            if (estPremier(mat[i][j])){
+                mat_char[i][j] = 'X';
+            }
+            else{
+                mat_char[i][j] = ' ';
+            }
+        }
+    }
+    return mat_char;
+}
+
+int main()
+{
+    unsigned kTaille = 11;
+    vector<vector<unsigned>> mat(kTaille, vector<unsigned>(kTaille, 1));
+    genereMatricEscargot(mat);
+    afficheMatrice(genereMatricUlam(mat));
+    return 0;
+}
