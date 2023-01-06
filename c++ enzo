@@ -1,0 +1,156 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <fstream>
+
+using namespace std;
+
+vector<unsigned> generePremierPlusPetitQue (const unsigned & N)
+{
+    vector<unsigned> tabNbPremier (N-1);
+    for(size_t i=0;i<tabNbPremier.size();++i){
+        tabNbPremier[i]=i+1;
+    }
+    for(size_t i=2;i<tabNbPremier.size();++i){
+        for(size_t j=1;j<i;++j){
+            if(tabNbPremier[j]==0) continue;
+            if(tabNbPremier[i]%tabNbPremier[j]==0){
+                tabNbPremier[i]=0;
+                break;
+            }
+       }
+    }
+    unsigned posAInserer (2);
+    for(size_t i=2;i<tabNbPremier.size();++i){
+        if(tabNbPremier[i]==0) continue;
+        tabNbPremier[posAInserer]=tabNbPremier[i];
+        ++posAInserer;
+    }
+    tabNbPremier.resize(posAInserer);
+    return tabNbPremier;
+}
+
+vector<unsigned> generePremierPlusPetitQueV2 (const unsigned & N)
+{
+    vector<unsigned> tabNbPremier (N-1);
+    for(size_t i=0;i<tabNbPremier.size();++i){
+        tabNbPremier[i]=i+1;
+    }
+    for(size_t i=1;i<tabNbPremier.size();++i){
+        if(tabNbPremier[i]==0) continue;
+        unsigned j (tabNbPremier[i]+i);
+        while(j<tabNbPremier.size()){
+            tabNbPremier[j]=0;
+            j+=tabNbPremier[i];
+        }
+    }
+    unsigned posAInserer (2);
+    for(size_t i=2;i<tabNbPremier.size();++i){
+        if(tabNbPremier[i]==0) continue;
+        tabNbPremier[posAInserer]=tabNbPremier[i];
+        ++posAInserer;
+    }
+    tabNbPremier.resize(posAInserer);
+    return tabNbPremier;
+}
+
+typedef vector<unsigned> MLu;
+typedef vector<MLu> MCu;
+
+void genereMatricEscargot (vector<vector<unsigned>> & mat, const unsigned & N)
+{
+    size_t i=N/2;
+    size_t j=N/2;
+    unsigned nb (1);
+    unsigned tour(1);
+    cout << i<<"i " << j << "j "<< nb << "nb "<<endl;
+    mat[i][j++]=nb++;
+    for(;nb<mat.size()*mat.size();){
+        //haut
+        for(unsigned fois=0;fois<tour*2;++fois){
+            mat[i][j]=nb++;
+            --i;
+        }
+        ++i;
+        --j;
+        //gauche
+        for(unsigned fois=0;fois<tour*2;++fois){
+            mat[i][j]=nb++;
+            --j;
+        }
+        ++j;
+        ++i;
+        //bas
+        for(unsigned fois=0;fois<tour*2;++fois){
+            mat[i][j]=nb++;
+            ++i;
+        }
+        ++j;
+        --i;
+        //droite
+        for(unsigned fois=0;fois<tour*2;++fois){
+            mat[i][j]=nb++;
+            ++j;
+        }
+        ++tour;
+    }
+}
+
+void genereMatricUlam (vector<vector<unsigned>> & mat,
+                       const vector <unsigned> & nombresPremiers)
+{
+    for(size_t i=0;i<mat.size();++i){
+        for(size_t j=0;j<mat[i].size();++j){
+            if(!binary_search(nombresPremiers.begin(),nombresPremiers.end(),mat[i][j])){
+                mat[i][j]=0;
+            }
+        }
+    }
+}
+
+void matriceULAMVersPPM(const vector<vector<unsigned>> & mat, const string & nomFicher)
+{
+    ofstream ofs(nomFicher);
+    ofs << "P3" << '\n' << mat.size() << ' ' << mat.size() << '\n'<<"255"<<'\n';
+    const string noir ("0 0 0 ");
+    const string blanc("255 255 255 ");
+    for(size_t i=0;i<mat.size();++i){
+        for(size_t j=0;j<mat[i].size();++j){
+            ofs << (mat[i][j]==0 ? noir : blanc);
+        }
+        ofs << '\n';
+    }
+}
+
+void affichVect(vector<unsigned> & V){
+    for(size_t i=0;i<V.size();++i){
+        cout << V[i]<<'\t';
+    }
+    cout<<endl;
+}
+
+template <typename T>
+void affichMatrice(vector<vector<T>> & V)
+{
+    for(size_t i=0;i<V.size();++i){
+        for(size_t j=0;j<V[i].size();++j){
+            cout << V[i][j] << '\t';
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+int main()
+{
+    unsigned taille=7;
+    MCu mat(taille,MLu (taille,0));
+    genereMatricEscargot(mat,taille);
+    affichMatrice(mat);
+    vector<unsigned> V=generePremierPlusPetitQueV2(49);
+    genereMatricUlam(mat,V);
+    affichMatrice(mat);
+    matriceULAMVersPPM(mat,"sortie.ppm");
+    cout << "Hello World!" << endl;
+    return 0;
+}
